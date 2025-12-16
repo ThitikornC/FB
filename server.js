@@ -18,13 +18,46 @@ app.use(express.static(path.join(__dirname, 'public')));
 let serviceAccount;
 try {
     serviceAccount = require('./serviceAccountKey.json');
+    console.log('✅ Using serviceAccountKey.json');
 } catch (err) {
     // ถ้าไฟล์ไม่มี ให้สร้างจาก environment variables
+    console.log('📝 serviceAccountKey.json not found, loading from environment variables...');
+    
+    // Debug: log all env vars (without sensitive data)
+    console.log('FIREBASE_PROJECT_ID:', process.env.FIREBASE_PROJECT_ID ? '✅ Set' : '❌ Not set');
+    console.log('FIREBASE_PRIVATE_KEY_ID:', process.env.FIREBASE_PRIVATE_KEY_ID ? '✅ Set' : '❌ Not set');
+    console.log('FIREBASE_PRIVATE_KEY:', process.env.FIREBASE_PRIVATE_KEY ? '✅ Set (length: ' + process.env.FIREBASE_PRIVATE_KEY.length + ')' : '❌ Not set');
+    console.log('FIREBASE_CLIENT_EMAIL:', process.env.FIREBASE_CLIENT_EMAIL ? '✅ Set' : '❌ Not set');
+    console.log('FIREBASE_CLIENT_ID:', process.env.FIREBASE_CLIENT_ID ? '✅ Set' : '❌ Not set');
+    console.log('FIREBASE_CLIENT_X509_CERT_URL:', process.env.FIREBASE_CLIENT_X509_CERT_URL ? '✅ Set' : '❌ Not set');
+    
+    // Parse private key - handle both escaped and non-escaped newlines
+    let privateKey = process.env.FIREBASE_PRIVATE_KEY || '';
+    if (!privateKey) {
+        console.error('❌ FIREBASE_PRIVATE_KEY is not set!');
+        console.log('Available env vars:', Object.keys(process.env).filter(k => k.includes('FIREBASE')));
+        process.exit(1);
+    }
+    
+    // Remove surrounding quotes if present
+    if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
+        privateKey = privateKey.slice(1, -1);
+    }
+    // Replace escaped newlines
+    privateKey = privateKey.replace(/\\n/g, '\n');
+    
+    const projectId = process.env.FIREBASE_PROJECT_ID;
+    if (!projectId) {
+        console.error('❌ FIREBASE_PROJECT_ID is not set!');
+        console.log('Available env vars:', Object.keys(process.env).filter(k => k.includes('FIREBASE')));
+        process.exit(1);
+    }
+    
     serviceAccount = {
         type: "service_account",
-        project_id: process.env.FIREBASE_PROJECT_ID,
+        project_id: projectId,
         private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
-        private_key: process.env.FIREBASE_PRIVATE_KEY ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n') : undefined,
+        private_key: privateKey,
         client_email: process.env.FIREBASE_CLIENT_EMAIL,
         client_id: process.env.FIREBASE_CLIENT_ID,
         auth_uri: "https://accounts.google.com/o/oauth2/auth",
@@ -32,6 +65,8 @@ try {
         auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
         client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL
     };
+    
+    console.log('✅ Firebase config loaded from environment variables');
 }
 
 admin.initializeApp({
