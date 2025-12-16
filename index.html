@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Image Upload & Drag Play</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🖼️ Firebase Image Manager</h1>
+            <p>อัพโหลดและลากภาพเพื่อเล่น</p>
+        </header>
+
+        <!-- Upload Section -->
+        <section class="upload-section">
+            <h2>📤 อัพโหลดภาพ</h2>
+            <div class="upload-area" id="uploadArea">
+                <input type="file" id="fileInput" accept="image/*" multiple hidden>
+                <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                <p>ลากไฟล์ที่นี่หรือคลิกเพื่อเลือก</p>
+                <span class="hint">รองรับไฟล์: JPG, PNG, GIF, WebP</span>
+            </div>
+            <div id="uploadProgress" class="progress-container" style="display:none;">
+                <div class="progress-bar">
+                    <div id="progressFill" class="progress-fill"></div>
+                </div>
+                <p id="progressText">กำลังอัพโหลด...</p>
+            </div>
+            <div id="uploadStatus" class="upload-status"></div>
+        </section>
+
+        <!-- Gallery & Canvas Section -->
+        <div class="main-content">
+            <!-- Gallery Section -->
+            <section class="gallery-section">
+                <h2>📸 แกลลเรี่ย</h2>
+                <div id="gallery" class="gallery-grid">
+                    <div class="loading">กำลังโหลดภาพ...</div>
+                </div>
+            </section>
+
+            <!-- Canvas Section -->
+            <section class="canvas-section">
+                <h2>🎨 พื้นที่ลาก</h2>
+                <p class="canvas-hint">ลากภาพจากแกลลเรี่ยมาที่นี่</p>
+                <div id="canvas" class="canvas-area">
+                    <span>วางภาพที่นี่</span>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Modal for image details -->
+    <div id="imageModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <img id="modalImage" src="" alt="Image">
+            <div class="modal-actions">
+                <button id="downloadBtn" class="btn btn-primary">📥 ดาวน์โหลด</button>
+                <button id="deleteBtn" class="btn btn-danger">🗑️ ลบ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-storage.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
